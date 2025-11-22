@@ -1,0 +1,5 @@
+{
+  "name": "FlowState - Contextual Workflow Manager",
+  "description": "A smart workflow manager that allows you to define templates, execute runs, and maintain shared context variables across every step of your process.",
+  "requestFramePermissions": []
+}
