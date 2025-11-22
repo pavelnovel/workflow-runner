@@ -148,10 +148,14 @@ API_PREFIX=/api/v1
 
 ### UI (ui/.env.local)
 ```bash
-GEMINI_API_KEY=your_api_key_here  # Optional, for AI template generation
+VITE_GEMINI_API_KEY=your_api_key_here  # Optional, for AI template generation
 ```
 
-The API base URL is hardcoded in `ui/services/apiService.ts` as `http://localhost:8003/api/v1`.
+**Important Notes:**
+- The `VITE_` prefix is required for Vite to expose the variable to the client
+- Replace `PLACEHOLDER_API_KEY` with your actual Gemini API key
+- Get a free key at: https://aistudio.google.com/app/apikey
+- The API base URL is hardcoded in `ui/services/apiService.ts` as `http://localhost:8003/api/v1`
 
 ## Troubleshooting
 
@@ -174,6 +178,19 @@ The API base URL is hardcoded in `ui/services/apiService.ts` as `http://localhos
 - **Check API URL**: `ui/services/apiService.ts` line 3 should match backend port
 - **Check browser console**: Look for CORS or network errors
 - **Check backend CORS**: `app/main.py` should include `http://localhost:3003` in allowed origins
+
+### "Failed to generate template" or "API key is invalid" error
+- **Check API key format**: Must be `VITE_GEMINI_API_KEY` (with `VITE_` prefix)
+- **Restart dev server**: Environment variables are loaded at startup - run `npm run dev` again
+- **Verify .env.local location**: File must be at `ui/.env.local` (not in project root)
+- **Check key validity**: Test your key at https://aistudio.google.com/app/apikey
+- **Browser console**: Check for "Gemini API key not configured" error message
+
+### "Objects are not valid as a React child" error
+- **Clear browser cache**: Corrupted data from old localStorage version
+- **Check browser console**: Look for specific component causing the error
+- **Reset application data**: Use the "Reset Application Data" button (now disabled for safety)
+- This error has been fixed with stricter type validation in v1.1
 
 ## Migration from localStorage to Database
 

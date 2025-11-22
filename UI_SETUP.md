@@ -23,10 +23,12 @@ npm install
 ```
 
 ### 2. Configure API Key
-Edit `ui/.env.local` and add your Gemini API key:
+Edit `ui/.env.local` and add your Gemini API key (must use `VITE_` prefix):
 ```
-GEMINI_API_KEY=your_actual_api_key_here
+VITE_GEMINI_API_KEY=your_actual_api_key_here
 ```
+
+**Important:** Replace `PLACEHOLDER_API_KEY` with your actual key from https://aistudio.google.com/app/apikey
 
 ### 3. Run Development Server
 ```bash

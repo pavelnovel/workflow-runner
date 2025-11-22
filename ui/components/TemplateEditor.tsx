@@ -9,7 +9,32 @@ interface TemplateEditorProps {
 }
 
 export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate, onSave, onCancel }) => {
-  const [template, setTemplate] = useState<Template>(initialTemplate);
+  // Sanitize template on load to prevent object rendering errors
+  const sanitizeTemplate = (t: Template): Template => {
+    return {
+      ...t,
+      name: typeof t.name === 'string' ? t.name : '',
+      description: typeof t.description === 'string' ? t.description : '',
+      defaultVariables: Array.isArray(t.defaultVariables)
+        ? t.defaultVariables.map(v => ({
+            key: typeof v?.key === 'string' ? v.key : '',
+            label: typeof v?.label === 'string' ? v.label : '',
+            value: typeof v?.value === 'string' ? v.value : '',
+            description: typeof v?.description === 'string' ? v.description : ''
+          }))
+        : [],
+      steps: Array.isArray(t.steps)
+        ? t.steps.map(s => ({
+            id: typeof s?.id === 'string' ? s.id : String(Math.random()),
+            title: typeof s?.title === 'string' ? s.title : '',
+            description: typeof s?.description === 'string' ? s.description : '',
+            completed: Boolean(s?.completed)
+          }))
+        : []
+    };
+  };
+
+  const [template, setTemplate] = useState<Template>(sanitizeTemplate(initialTemplate));
   const [activeTab, setActiveTab] = useState<'general' | 'variables' | 'steps'>('general');
 
   // Helper to ensure string and completely discard objects
@@ -28,7 +53,13 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
     const newVars = [...(template.defaultVariables || [])];
     // Ensure the variable object exists before updating
     if (!newVars[index]) return;
-    newVars[index] = { ...newVars[index], [field]: value };
+
+    // Strictly ensure the value is a string
+    const stringValue = typeof value === 'string' ? value : String(value || '');
+    newVars[index] = {
+      ...newVars[index],
+      [field]: stringValue
+    };
     setTemplate({ ...template, defaultVariables: newVars });
   };
 
@@ -39,7 +70,10 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
       value: '',
       description: ''
     };
-    setTemplate({ ...template, defaultVariables: [...(template.defaultVariables || []), newVar] });
+    const updatedVars = [...(template.defaultVariables || []), newVar];
+    console.log('Adding new variable:', newVar);
+    console.log('Updated variables array:', updatedVars);
+    setTemplate({ ...template, defaultVariables: updatedVars });
   };
 
   const removeVariable = (index: number) => {

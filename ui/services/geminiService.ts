@@ -17,7 +17,13 @@ const safeString = (val: any): string => {
 
 export const generateTemplateWithAI = async (prompt: string): Promise<Template> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+      throw new Error('Gemini API key not configured. Please add your API key to ui/.env.local');
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     
     const systemInstruction = `
       You are an expert workflow architect. 
