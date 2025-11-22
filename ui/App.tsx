@@ -144,13 +144,19 @@ const App: React.FC = () => {
 
   const handleSaveTemplate = async (updatedTemplate: Template) => {
     try {
+      console.log('Saving template:', updatedTemplate);
       const saved = await apiService.updateTemplate(updatedTemplate.id, updatedTemplate);
+      console.log('Template saved successfully:', saved);
       setTemplates(prev => prev.map(t => t.id === updatedTemplate.id ? saved : t));
       setEditingTemplate(null);
       setView('DASHBOARD');
+      // Show success message briefly
+      setTimeout(() => {
+        alert("Template saved successfully!");
+      }, 100);
     } catch (error) {
       console.error("Failed to save template:", error);
-      alert("Failed to save template. Please check backend connection.");
+      alert(`Failed to save template: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

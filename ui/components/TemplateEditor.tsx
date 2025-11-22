@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Template, Variable, Step } from '../types';
-import { Save, ArrowLeft, Plus, Trash2, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { Save, ArrowLeft, Plus, Trash2, GripVertical, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 
 interface TemplateEditorProps {
   initialTemplate: Template;
-  onSave: (template: Template) => void;
+  onSave: (template: Template) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -36,6 +36,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
 
   const [template, setTemplate] = useState<Template>(sanitizeTemplate(initialTemplate));
   const [activeTab, setActiveTab] = useState<'general' | 'variables' | 'steps'>('general');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Helper to ensure string and completely discard objects
   const safeVal = (val: any) => {
@@ -118,6 +119,18 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
   const variableCount = Array.isArray(template.defaultVariables) ? template.defaultVariables.length : 0;
   const stepCount = Array.isArray(template.steps) ? template.steps.length : 0;
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(template);
+    } catch (error) {
+      console.error('Save error:', error);
+      // Error is already shown by parent component
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
@@ -129,11 +142,21 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
           <h1 className="font-bold text-gray-900 text-lg">Edit Template</h1>
         </div>
         <button
-          onClick={() => onSave(template)}
-          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Save size={18} />
-          <span>Save Changes</span>
+          {isSaving ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save size={18} />
+              <span>Save Changes</span>
+            </>
+          )}
         </button>
       </header>
 

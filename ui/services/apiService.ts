@@ -81,25 +81,111 @@ export const apiService = {
   },
 
   async createTemplate(template: Template): Promise<Template> {
+    // Step 1: Create template with metadata only
+    const createPayload = {
+      name: template.name,
+      description: template.description,
+      variables: template.defaultVariables || []
+    };
+
     const response = await fetch(`${API_BASE_URL}/templates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(templateToBackend(template))
+      body: JSON.stringify(createPayload)
     });
-    if (!response.ok) throw new Error('Failed to create template');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Create failed:', errorText);
+      throw new Error(`Failed to create template: ${response.status} ${errorText}`);
+    }
+
     const data = await response.json();
-    return templateFromBackend(data);
+    const templateId = data.id;
+
+    // Step 2: Create all steps
+    for (let i = 0; i < template.steps.length; i++) {
+      const step = template.steps[i];
+      const stepPayload = {
+        title: step.title,
+        description: step.description,
+        is_required: true,
+        order_index: i + 1
+      };
+
+      await fetch(`${API_BASE_URL}/templates/${templateId}/steps`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stepPayload)
+      });
+    }
+
+    // Fetch the complete template with all steps
+    return this.getTemplate(templateId.toString());
   },
 
   async updateTemplate(id: string, template: Template): Promise<Template> {
+    // Step 1: Update template metadata (name, description, variables)
+    const updatePayload = {
+      name: template.name,
+      description: template.description,
+      variables: template.defaultVariables || []
+    };
+
     const response = await fetch(`${API_BASE_URL}/templates/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(templateToBackend(template))
+      body: JSON.stringify(updatePayload)
     });
-    if (!response.ok) throw new Error('Failed to update template');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Update failed:', errorText);
+      throw new Error(`Failed to update template: ${response.status} ${errorText}`);
+    }
+
     const data = await response.json();
-    return templateFromBackend(data);
+
+    // Step 2: Sync steps with backend
+    const existingStepIds = new Set(data.steps.map((s: any) => s.id.toString()));
+    const newStepIds = new Set(template.steps.filter(s => !s.id.startsWith('step_')).map(s => s.id));
+
+    // Delete removed steps
+    for (const existingStep of data.steps) {
+      if (!template.steps.find(s => s.id === existingStep.id.toString())) {
+        await fetch(`${API_BASE_URL}/template-steps/${existingStep.id}`, {
+          method: 'DELETE'
+        });
+      }
+    }
+
+    // Update existing steps and create new ones
+    for (let i = 0; i < template.steps.length; i++) {
+      const step = template.steps[i];
+      const stepPayload = {
+        title: step.title,
+        description: step.description,
+        is_required: true,
+        order_index: i + 1
+      };
+
+      if (step.id.startsWith('step_')) {
+        // New step - create it
+        await fetch(`${API_BASE_URL}/templates/${id}/steps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(stepPayload)
+        });
+      } else {
+        // Existing step - update it
+        await fetch(`${API_BASE_URL}/template-steps/${step.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(stepPayload)
+        });
+      }
+    }
+
+    // Fetch the fully updated template
+    return this.getTemplate(id);
   },
 
   async deleteTemplate(id: string): Promise<void> {
