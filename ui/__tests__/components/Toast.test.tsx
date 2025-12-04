@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act, fireEvent } from '@testing-library/react';
-import { ToastContainer, useToast, ToastMessage } from './Toast';
+import { ToastContainer, useToast, ToastMessage } from '../../components/Toast';
 import React from 'react';
 
 // Test component that uses the useToast hook
@@ -34,7 +34,7 @@ describe('Toast Component', () => {
 
   it('renders nothing when there are no toasts', () => {
     const { container } = render(
-      <ToastContainer toasts={[]} onDismiss={() => {}} />
+      <ToastContainer toasts={[]} onDismiss={() => { }} />
     );
     expect(container.querySelector('.fixed')).toBeNull();
   });
@@ -44,7 +44,7 @@ describe('Toast Component', () => {
       { id: '1', type: 'success', message: 'Test success' }
     ];
 
-    render(<ToastContainer toasts={toasts} onDismiss={() => {}} />);
+    render(<ToastContainer toasts={toasts} onDismiss={() => { }} />);
 
     expect(screen.getByText('Test success')).toBeInTheDocument();
   });
@@ -56,7 +56,7 @@ describe('Toast Component', () => {
       { id: '3', type: 'info', message: 'Info toast' }
     ];
 
-    render(<ToastContainer toasts={toasts} onDismiss={() => {}} />);
+    render(<ToastContainer toasts={toasts} onDismiss={() => { }} />);
 
     expect(screen.getByText('Success toast')).toBeInTheDocument();
     expect(screen.getByText('Error toast')).toBeInTheDocument();
