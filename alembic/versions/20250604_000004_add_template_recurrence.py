@@ -1,8 +1,8 @@
 """add template recurrence and icon fields
 
-Revision ID: 20250104_000003
+Revision ID: 20250604_000004
 Revises: 20250121_000002
-Create Date: 2025-01-04 00:00:03.000000
+Create Date: 2025-06-04 00:00:04.000000
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '20250104_000003'
+revision = '20250604_000004'
 down_revision = '20250121_000002'
 branch_labels = None
 depends_on = None

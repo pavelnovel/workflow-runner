@@ -26,6 +26,7 @@ export interface Template {
   id: string;
   name: string;
   description: string;
+  icon?: string; // Emoji icon for the template
   defaultVariables: Variable[]; // Variables that must be initialized at start
   steps: Step[];
   sections?: Section[]; // Optional sections to organize steps

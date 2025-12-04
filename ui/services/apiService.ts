@@ -8,6 +8,7 @@ const templateToBackend = (template: Template) => {
   return {
     name: template.name,
     description: template.description,
+    icon: template.icon || '📋',
     isRecurring,
     // Only set recurrenceInterval when isRecurring is true to maintain data consistency
     recurrenceInterval: isRecurring ? (template.recurrenceInterval || 'biweekly') : null,
@@ -45,6 +46,7 @@ const templateFromBackend = (backendTemplate: any): Template => {
     id: backendTemplate.id.toString(),
     name: safeString(backendTemplate.name),
     description: safeString(backendTemplate.description),
+    icon: safeString(backendTemplate.icon) || '📋',
     isRecurring,
     // Only set recurrenceInterval when isRecurring is true to maintain data consistency
     recurrenceInterval: isRecurring ? (backendTemplate.recurrenceInterval || 'biweekly') : undefined,
@@ -133,6 +135,7 @@ export const apiService = {
     const createPayload = {
       name: template.name,
       description: template.description,
+      icon: template.icon || '📋',
       isRecurring,
       // Only set recurrenceInterval when isRecurring is true to maintain data consistency
       recurrenceInterval: isRecurring ? (template.recurrenceInterval || 'biweekly') : null,
@@ -175,11 +178,12 @@ export const apiService = {
   },
 
   async updateTemplate(id: string, template: Template): Promise<Template> {
-    // Step 1: Update template metadata (name, description, variables, recurrence)
+    // Step 1: Update template metadata (name, description, variables, recurrence, icon)
     const isRecurring = template.isRecurring || false;
     const updatePayload = {
       name: template.name,
       description: template.description,
+      icon: template.icon || '📋',
       isRecurring,
       // Only set recurrenceInterval when isRecurring is true to maintain data consistency
       recurrenceInterval: isRecurring ? (template.recurrenceInterval || 'biweekly') : null,

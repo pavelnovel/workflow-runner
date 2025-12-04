@@ -182,6 +182,7 @@ const App: React.FC = () => {
       id: safeStr(template.id),
       name: safeStr(template.name),
       description: safeStr(template.description),
+      icon: safeStr(template.icon) || '📋',
       isRecurring,
       // Only set recurrenceInterval when isRecurring is true to maintain data consistency
       recurrenceInterval: isRecurring ? (template.recurrenceInterval || 'biweekly') : undefined,
@@ -199,8 +200,17 @@ const App: React.FC = () => {
           id: safeStr(s?.id) || `step_${Math.random()}`,
           title: safeStr(s?.title),
           description: safeStr(s?.description),
-          completed: Boolean(s?.completed)
-        }))
+          completed: Boolean(s?.completed),
+          sectionId: safeStr(s?.sectionId) || undefined
+        })),
+      // Preserve sections if they exist
+      sections: Array.isArray(template.sections) 
+        ? template.sections.filter(sec => sec && typeof sec === 'object').map(sec => ({
+            id: safeStr(sec?.id) || `section_${Math.random()}`,
+            title: safeStr(sec?.title),
+            isCollapsed: Boolean(sec?.isCollapsed)
+          }))
+        : undefined
     };
     setEditingTemplate(cleanTemplate);
     setView('EDIT_TEMPLATE');
