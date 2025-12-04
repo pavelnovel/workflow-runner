@@ -46,7 +46,12 @@ const workflowToBackend = (workflow: Workflow) => {
 
 // Helper to convert Backend Run to UI Workflow format
 const workflowFromBackend = (backendRun: any, template?: any): Workflow => {
-  const steps = template?.steps || backendRun.steps || [];
+  const runSteps = backendRun.steps || [];
+  const templateSteps = template?.steps || [];
+
+  // Use run steps if available (they have status), otherwise fallback to template steps
+  const steps = runSteps.length > 0 ? runSteps : templateSteps;
+
   return {
     id: backendRun.id.toString(),
     templateId: backendRun.template_id.toString(),
@@ -54,9 +59,10 @@ const workflowFromBackend = (backendRun: any, template?: any): Workflow => {
     currentStepIndex: backendRun.current_step_index || 0,
     variables: backendRun.variables || [],
     steps: steps.map((step: any) => ({
-      id: step.id?.toString() || step.template_step_id?.toString() || Math.random().toString(),
-      title: step.title || step.template_step?.title || '',
-      description: step.description || step.template_step?.description || '',
+      id: step.template_step_id?.toString() || step.id?.toString() || Math.random().toString(),
+      runStepId: step.run_id ? step.id.toString() : undefined, // Track backend run step ID
+      title: step.template_step?.title || step.title || '',
+      description: step.template_step?.description || step.description || '',
       completed: step.status === 'done' || step.completed || false
     })),
     completed: backendRun.completed || backendRun.status === 'done',
@@ -242,5 +248,14 @@ export const apiService = {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete workflow');
+  },
+
+  async completeStep(workflowId: string, runStepId: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/runs/${workflowId}/steps/${runStepId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'done' })
+    });
+    if (!response.ok) throw new Error('Failed to complete step');
   }
 };

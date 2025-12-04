@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Template, Variable, Step } from '../types';
-import { Save, ArrowLeft, Plus, Trash2, GripVertical, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { Template, Variable, Step, RecurrenceInterval } from '../types';
+import { Save, ArrowLeft, Plus, Trash2, GripVertical, ArrowUp, ArrowDown, Loader2, RefreshCw } from 'lucide-react';
+
+// Available emoji icons for templates
+const TEMPLATE_ICONS = ['📋', '🎥', '🛡️', '👥', '🤝', '📊', '🚀', '💼', '📝', '🎯', '🔧', '📦', '💡', '📈', '🎉', '⚡'];
 
 interface TemplateEditorProps {
   initialTemplate: Template;
@@ -15,6 +18,9 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
       ...t,
       name: typeof t.name === 'string' ? t.name : '',
       description: typeof t.description === 'string' ? t.description : '',
+      icon: typeof t.icon === 'string' ? t.icon : '📋',
+      isRecurring: Boolean(t.isRecurring),
+      recurrenceInterval: t.recurrenceInterval || 'biweekly',
       defaultVariables: Array.isArray(t.defaultVariables)
         ? t.defaultVariables.map(v => ({
             key: typeof v?.key === 'string' ? v.key : '',
@@ -187,6 +193,27 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
         
         {activeTab === 'general' && (
           <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm space-y-6">
+            {/* Icon Picker */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Template Icon</label>
+              <div className="flex flex-wrap gap-2">
+                {TEMPLATE_ICONS.map((icon) => (
+                  <button
+                    key={icon}
+                    type="button"
+                    onClick={() => setTemplate({ ...template, icon })}
+                    className={`w-10 h-10 text-xl rounded-lg border-2 transition-all ${
+                      template.icon === icon
+                        ? 'border-brand-500 bg-brand-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Template Name</label>
               <input
@@ -204,6 +231,46 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                 rows={4}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none"
               />
+            </div>
+
+            {/* Recurrence Settings */}
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex items-center gap-3 mb-4">
+                <RefreshCw size={20} className="text-gray-500" />
+                <h3 className="font-medium text-gray-900">Recurrence Settings</h3>
+              </div>
+
+              <div className="space-y-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={template.isRecurring || false}
+                    onChange={(e) => setTemplate({ ...template, isRecurring: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">This is a recurring process</span>
+                    <p className="text-xs text-gray-500">Enable to track when this process needs to be run again</p>
+                  </div>
+                </label>
+
+                {template.isRecurring && (
+                  <div className="ml-8">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Run Frequency</label>
+                    <select
+                      value={template.recurrenceInterval || 'biweekly'}
+                      onChange={(e) => setTemplate({ ...template, recurrenceInterval: e.target.value as RecurrenceInterval })}
+                      className="w-full max-w-xs border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"
+                    >
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="biweekly">Bi-weekly (every 2 weeks)</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="quarterly">Quarterly</option>
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

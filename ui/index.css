@@ -1,4 +1,4 @@
-/* FlowState Global Styles */
+/* ProcessDoer Global Styles */
 
 * {
   box-sizing: border-box;
@@ -16,6 +16,21 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Animations for smooth transitions */
