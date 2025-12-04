@@ -132,21 +132,26 @@ class TestRunSchemas:
     """Tests for run-related schemas."""
 
     def test_run_create_with_variables(self):
-        """Should accept variables dict."""
+        """Should accept variables as list of dicts."""
         run = RunCreate(
-            variables={"projectName": "Test Project", "deadline": "2024-12-31"}
+            name="Test Run",
+            variables=[
+                {"key": "projectName", "value": "Test Project"},
+                {"key": "deadline", "value": "2024-12-31"}
+            ]
         )
-        assert run.variables["projectName"] == "Test Project"
+        assert run.name == "Test Run"
+        assert len(run.variables) == 2
 
     def test_run_create_empty_variables(self):
-        """Should allow empty variables."""
-        run = RunCreate(variables={})
-        assert run.variables == {}
+        """Should allow empty variables list."""
+        run = RunCreate(name="Test Run", variables=[])
+        assert run.variables == []
 
     def test_run_create_default_variables(self):
-        """Should default to empty variables."""
-        run = RunCreate()
-        assert run.variables == {}
+        """Should default to None for variables."""
+        run = RunCreate(name="Test Run")
+        assert run.variables is None
 
     def test_run_step_update_status(self):
         """Should accept valid status."""
