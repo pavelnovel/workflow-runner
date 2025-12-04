@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session, selectinload
 from app.models import Run, RunStep, TemplateStep
 
 
-def load_run_detail(db: Session, run_id: int) -> Run | None:
+from typing import Optional
+
+def load_run_detail(db: Session, run_id: int) -> Optional[Run]:
     stmt = (
         select(Run)
         .options(
