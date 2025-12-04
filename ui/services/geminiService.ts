@@ -17,10 +17,11 @@ const safeString = (val: any): string => {
 
 export const generateTemplateWithAI = async (prompt: string): Promise<Template> => {
   try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    // Check localStorage first (from Settings), then fall back to env variable
+    const apiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
 
     if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
-      throw new Error('Gemini API key not configured. Please add your API key to ui/.env.local');
+      throw new Error('Gemini API key not configured. Please add your API key in Settings.');
     }
 
     const ai = new GoogleGenAI({ apiKey });
