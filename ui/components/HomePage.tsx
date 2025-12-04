@@ -62,7 +62,8 @@ export const HomePage: React.FC<HomePageProps> = ({
   // Get progress percentage for a workflow
   const getProgress = (workflow: Workflow): number => {
     if (workflow.steps.length === 0) return 0;
-    return Math.round((workflow.currentStepIndex / workflow.steps.length) * 100);
+    const completedCount = workflow.steps.filter(s => s.completed).length;
+    return Math.round((completedCount / workflow.steps.length) * 100);
   };
 
   return (

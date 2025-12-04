@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Template, Variable, Step, RecurrenceInterval } from '../types';
 import { Save, ArrowLeft, Plus, Trash2, GripVertical, ArrowUp, ArrowDown, Loader2, RefreshCw } from 'lucide-react';
+import { RichStepEditor } from './RichStepEditor';
 
 // Available emoji icons for templates
 const TEMPLATE_ICONS = ['📋', '🎥', '🛡️', '👥', '🤝', '📊', '🚀', '💼', '📝', '🎯', '🔧', '📦', '💡', '📈', '🎉', '⚡'];
@@ -12,31 +13,50 @@ interface TemplateEditorProps {
 }
 
 export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate, onSave, onCancel }) => {
+  // Helper to forcibly convert any value to a string (prevents React Error #31)
+  const forceString = (val: any): string => {
+    if (val === null || val === undefined) return '';
+    if (typeof val === 'object') return ''; // Discard objects/arrays entirely
+    return String(val);
+  };
+
   // Sanitize template on load to prevent object rendering errors
   const sanitizeTemplate = (t: Template): Template => {
+    // Sanitize variables - skip any that aren't proper objects
+    const cleanVariables = Array.isArray(t.defaultVariables)
+      ? t.defaultVariables
+          .filter(v => v && typeof v === 'object' && !Array.isArray(v))
+          .map(v => ({
+            key: forceString(v.key),
+            label: forceString(v.label),
+            value: forceString(v.value),
+            description: forceString(v.description)
+          }))
+      : [];
+
+    // Sanitize steps - skip any that aren't proper objects
+    const cleanSteps = Array.isArray(t.steps)
+      ? t.steps
+          .filter(s => s && typeof s === 'object' && !Array.isArray(s))
+          .map(s => ({
+            id: forceString(s.id) || `step_${Math.random()}`,
+            title: forceString(s.title),
+            description: forceString(s.description),
+            completed: Boolean(s.completed)
+          }))
+      : [];
+
+    const isRecurring = Boolean(t.isRecurring);
     return {
       ...t,
-      name: typeof t.name === 'string' ? t.name : '',
-      description: typeof t.description === 'string' ? t.description : '',
-      icon: typeof t.icon === 'string' ? t.icon : '📋',
-      isRecurring: Boolean(t.isRecurring),
-      recurrenceInterval: t.recurrenceInterval || 'biweekly',
-      defaultVariables: Array.isArray(t.defaultVariables)
-        ? t.defaultVariables.map(v => ({
-            key: typeof v?.key === 'string' ? v.key : '',
-            label: typeof v?.label === 'string' ? v.label : '',
-            value: typeof v?.value === 'string' ? v.value : '',
-            description: typeof v?.description === 'string' ? v.description : ''
-          }))
-        : [],
-      steps: Array.isArray(t.steps)
-        ? t.steps.map(s => ({
-            id: typeof s?.id === 'string' ? s.id : String(Math.random()),
-            title: typeof s?.title === 'string' ? s.title : '',
-            description: typeof s?.description === 'string' ? s.description : '',
-            completed: Boolean(s?.completed)
-          }))
-        : []
+      name: forceString(t.name),
+      description: forceString(t.description),
+      icon: forceString(t.icon) || '📋',
+      isRecurring,
+      // Only set recurrenceInterval when isRecurring is true to maintain data consistency
+      recurrenceInterval: isRecurring ? (forceString(t.recurrenceInterval) || 'biweekly') : undefined,
+      defaultVariables: cleanVariables,
+      steps: cleanSteps
     };
   };
 
@@ -44,12 +64,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
   const [activeTab, setActiveTab] = useState<'general' | 'variables' | 'steps'>('general');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Helper to ensure string and completely discard objects
-  const safeVal = (val: any) => {
-    if (val === null || val === undefined) return '';
-    if (typeof val === 'object') return ''; // Aggressively discard objects to prevent Error #31
-    return String(val);
-  };
+  // Helper to ensure string and completely discard objects (reuse forceString)
+  const safeVal = forceString;
 
   const handleBasicChange = (field: 'name' | 'description', value: string) => {
     setTemplate({ ...template, [field]: value });
@@ -285,7 +301,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
             </div>
             
             {Array.isArray(template.defaultVariables) && template.defaultVariables.map((variable, idx) => {
-              if (!variable) return null;
+              if (!variable || typeof variable !== 'object' || Array.isArray(variable)) return null;
               return (
                 <div key={idx} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex gap-4 items-start group">
                   <div className="mt-3 text-gray-300"><GripVertical size={20}/></div>
@@ -301,7 +317,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Key (used in {{}})</label>
+                      <label className="block text-xs text-gray-500 mb-1">Key (used in {'{{}}'})</label>
                       <input
                         type="text"
                         value={safeVal(variable.key)}
@@ -382,10 +398,9 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                       className="w-full text-lg font-semibold border-b border-transparent hover:border-gray-200 focus:border-brand-500 outline-none px-1"
                       placeholder="Step Title"
                     />
-                    <textarea
+                    <RichStepEditor
                       value={safeVal(step.description)}
-                      onChange={(e) => updateStep(idx, 'description', e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-700 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-y min-h-[100px]"
+                      onChange={(value) => updateStep(idx, 'description', value)}
                       placeholder="Step instructions... use {{variableKey}} to insert dynamic data."
                     />
                   </div>

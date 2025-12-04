@@ -103,13 +103,13 @@ const App: React.FC = () => {
           apiService.getTemplates(),
           apiService.getWorkflows()
         ]);
-        if (templatesData.length > 0) {
-          setTemplates(templatesData);
-        }
+        // Always set templates from backend (even if empty) to reflect true state
+        setTemplates(templatesData);
         setActiveWorkflows(workflowsData);
       } catch (error) {
         console.error("Failed to load data from backend:", error);
-        // Fallback to initial templates on error
+        // Fallback to initial templates on error - keep INITIAL_TEMPLATES (already set as default)
+        // No action needed since useState already initialized with INITIAL_TEMPLATES
       }
     };
 
@@ -163,7 +163,8 @@ const App: React.FC = () => {
   const handleUpdateWorkflow = async (updated: Workflow) => {
     try {
       const updatedWorkflow = await apiService.updateWorkflow(updated.id, updated);
-      setActiveWorkflows(prev => prev.map(w => w.id === updated.id ? { ...updatedWorkflow, templateIcon: updated.templateIcon, isRecurring: updated.isRecurring, recurrenceInterval: updated.recurrenceInterval } : w));
+      // Template metadata (templateIcon, isRecurring, recurrenceInterval) is now properly populated by workflowFromBackend
+      setActiveWorkflows(prev => prev.map(w => w.id === updated.id ? updatedWorkflow : w));
     } catch (error) {
       console.error("Failed to update workflow:", error);
       setActiveWorkflows(prev => prev.map(w => w.id === updated.id ? updated : w));
@@ -181,25 +182,31 @@ const App: React.FC = () => {
   };
 
   const handleEditTemplate = (template: Template) => {
+    const isRecurring = Boolean(template.isRecurring);
     const cleanTemplate: Template = {
       id: safeStr(template.id),
       name: safeStr(template.name),
       description: safeStr(template.description),
-      icon: template.icon || '📋',
-      isRecurring: Boolean(template.isRecurring),
-      recurrenceInterval: template.recurrenceInterval,
-      defaultVariables: (Array.isArray(template.defaultVariables) ? template.defaultVariables : []).map(v => ({
-        key: safeStr(v?.key),
-        label: safeStr(v?.label),
-        value: safeStr(v?.value),
-        description: safeStr(v?.description)
-      })),
-      steps: (Array.isArray(template.steps) ? template.steps : []).map(s => ({
-        id: safeStr(s?.id),
-        title: safeStr(s?.title),
-        description: safeStr(s?.description),
-        completed: Boolean(s?.completed)
-      }))
+      icon: safeStr(template.icon) || '📋',
+      isRecurring,
+      // Only set recurrenceInterval when isRecurring is true to maintain data consistency
+      recurrenceInterval: isRecurring ? (safeStr(template.recurrenceInterval) || 'biweekly') : undefined,
+      defaultVariables: (Array.isArray(template.defaultVariables) ? template.defaultVariables : [])
+        .filter(v => v && typeof v === 'object' && !Array.isArray(v))
+        .map(v => ({
+          key: safeStr(v?.key),
+          label: safeStr(v?.label),
+          value: safeStr(v?.value),
+          description: safeStr(v?.description)
+        })),
+      steps: (Array.isArray(template.steps) ? template.steps : [])
+        .filter(s => s && typeof s === 'object' && !Array.isArray(s))
+        .map(s => ({
+          id: safeStr(s?.id) || `step_${Math.random()}`,
+          title: safeStr(s?.title),
+          description: safeStr(s?.description),
+          completed: Boolean(s?.completed)
+        }))
     };
     setEditingTemplate(cleanTemplate);
     setView('EDIT_TEMPLATE');

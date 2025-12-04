@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Workflow, Variable, Step } from '../types';
 import { ArrowLeft, CheckCircle, ChevronRight, Save, Plus, X, SlidersHorizontal } from 'lucide-react';
 import { apiService } from '../services/apiService';
+import { RichStepRenderer } from './RichStepRenderer';
 
 interface WorkflowRunProps {
   workflow: Workflow;
@@ -86,6 +87,12 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
   };
 
   const handleNext = async () => {
+    // Guard: ensure currentStep exists before proceeding
+    if (!currentStep) {
+      console.error('Cannot advance: currentStep is undefined (currentStepIndex out of bounds)');
+      return;
+    }
+
     const updatedSteps = [...workflow.steps];
     updatedSteps[workflow.currentStepIndex] = { ...currentStep, completed: true };
 
@@ -107,7 +114,9 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
       ...workflow,
       steps: updatedSteps,
       currentStepIndex: nextIndex,
-      completed: isLastStep
+      completed: isLastStep,
+      // Set completedAt when workflow is finished to ensure accurate timestamp for recurring intervals
+      ...(isLastStep && { completedAt: new Date() })
     });
 
     if (isLastStep) {
@@ -266,13 +275,20 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
           <div className="max-w-3xl mx-auto">
             {/* Step Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 min-h-[400px] flex flex-col">
+              {currentStep ? (
               <div className="mb-6">
                 <span className="text-brand-600 font-medium text-sm tracking-wide uppercase">Current Step</span>
                 <h2 className="text-3xl font-bold text-gray-900 mt-2 mb-4">{strictString(currentStep.title)}</h2>
-                <div className="prose prose-slate prose-lg text-gray-600 leading-relaxed">
-                  <p>{renderTextWithVariables(strictString(currentStep.description))}</p>
-                </div>
+                <RichStepRenderer 
+                  content={strictString(currentStep.description)}
+                  variables={localVariables}
+                />
               </div>
+              ) : (
+              <div className="mb-6 text-center text-gray-500">
+                <p>No step available. The workflow may have completed or has an invalid state.</p>
+              </div>
+              )}
 
               <div className="mt-auto pt-8 border-t border-gray-100 flex justify-between items-center">
                 <button
