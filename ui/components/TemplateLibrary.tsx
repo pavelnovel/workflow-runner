@@ -204,28 +204,29 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
           >
             {/* Template Label */}
             <div className="flex items-start justify-between mb-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getTemplateColor(index)}`}>
-                <FileText size={20} />
+              <div className="flex items-center gap-2">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getTemplateColor(index)}`}>
+                  <FileText size={20} />
+                </div>
+                {/* Edit/Delete buttons - show on hover */}
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => onEditTemplate(template)}
+                    className="text-gray-300 hover:text-brand-500 transition-colors p-1"
+                    title="Edit Workflow"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    onClick={() => onDeleteTemplate(template.id)}
+                    className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                    title="Delete Workflow"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Workflow</span>
-            </div>
-
-            {/* Edit/Delete buttons - show on hover */}
-            <div className="absolute top-4 right-16 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={() => onEditTemplate(template)}
-                className="text-gray-300 hover:text-brand-500 transition-colors p-1"
-                title="Edit Template"
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                onClick={() => onDeleteTemplate(template.id)}
-                className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                title="Delete Template"
-              >
-                <Trash2 size={16} />
-              </button>
             </div>
 
             {/* Content */}
