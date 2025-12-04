@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Workflow, Variable, Step } from '../types';
 import { ArrowLeft, CheckCircle, ChevronRight, Save, Plus, X, SlidersHorizontal } from 'lucide-react';
+import { apiService } from '../services/apiService';
+import { RichStepRenderer } from './RichStepRenderer';
 
 interface WorkflowRunProps {
   workflow: Workflow;
@@ -84,20 +86,37 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
     setNewVarValue('');
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Guard: ensure currentStep exists before proceeding
+    if (!currentStep) {
+      console.error('Cannot advance: currentStep is undefined (currentStepIndex out of bounds)');
+      return;
+    }
+
     const updatedSteps = [...workflow.steps];
     updatedSteps[workflow.currentStepIndex] = { ...currentStep, completed: true };
-    
+
     let nextIndex = workflow.currentStepIndex;
     if (!isLastStep) {
       nextIndex += 1;
+    }
+
+    // Call API to mark step as complete if we have a runStepId
+    if (currentStep.runStepId) {
+      try {
+        await apiService.completeStep(workflow.id, currentStep.runStepId);
+      } catch (error) {
+        console.error('Failed to complete step:', error);
+      }
     }
 
     onUpdate({
       ...workflow,
       steps: updatedSteps,
       currentStepIndex: nextIndex,
-      completed: isLastStep
+      completed: isLastStep,
+      // Set completedAt when workflow is finished to ensure accurate timestamp for recurring intervals
+      ...(isLastStep && { completedAt: new Date() })
     });
 
     if (isLastStep) {
@@ -115,7 +134,8 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
 
   const progressPercent = useMemo(() => {
     const len = workflow.steps.length || 1;
-    return ((workflow.currentStepIndex) / len) * 100;
+    const completedCount = workflow.steps.filter(s => s.completed).length;
+    return (completedCount / len) * 100;
   }, [workflow]);
 
   // We render this block in two places (mobile drawer and desktop sidebar)
@@ -228,21 +248,21 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
           <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 pl-2">Steps</h3>
           <div className="space-y-1">
             {workflow.steps.map((step, idx) => (
-              <button 
+              <button
                 key={strictString(step.id) || idx}
                 onClick={() => handleGoToStep(idx)}
                 className={`
                   w-full px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-3 transition-all
                   cursor-pointer hover:bg-brand-50 hover:border-brand-100
                   ${idx === workflow.currentStepIndex ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'text-gray-600 border border-transparent'}
-                  ${idx < workflow.currentStepIndex ? 'text-gray-400' : ''}
+                  ${step.completed ? 'text-gray-400' : ''}
                 `}
               >
                 <div className={`
                   w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0
-                  ${idx < workflow.currentStepIndex ? 'bg-green-100 text-green-600' : (idx === workflow.currentStepIndex ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-500')}
+                  ${step.completed ? 'bg-green-100 text-green-600' : (idx === workflow.currentStepIndex ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-500')}
                 `}>
-                  {idx < workflow.currentStepIndex ? <CheckCircle size={12} /> : idx + 1}
+                  {step.completed ? <CheckCircle size={12} /> : idx + 1}
                 </div>
                 <span className="truncate text-left">{strictString(step.title)}</span>
               </button>
@@ -255,13 +275,20 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
           <div className="max-w-3xl mx-auto">
             {/* Step Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 min-h-[400px] flex flex-col">
+              {currentStep ? (
               <div className="mb-6">
                 <span className="text-brand-600 font-medium text-sm tracking-wide uppercase">Current Step</span>
                 <h2 className="text-3xl font-bold text-gray-900 mt-2 mb-4">{strictString(currentStep.title)}</h2>
-                <div className="prose prose-slate prose-lg text-gray-600 leading-relaxed">
-                  <p>{renderTextWithVariables(strictString(currentStep.description))}</p>
-                </div>
+                <RichStepRenderer 
+                  content={strictString(currentStep.description)}
+                  variables={localVariables}
+                />
               </div>
+              ) : (
+              <div className="mb-6 text-center text-gray-500">
+                <p>No step available. The workflow may have completed or has an invalid state.</p>
+              </div>
+              )}
 
               <div className="mt-auto pt-8 border-t border-gray-100 flex justify-between items-center">
                 <button

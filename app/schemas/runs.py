@@ -30,6 +30,7 @@ class RunUpdate(ORMModel):
     variables: list[dict[str, Any]] | None = None  # Update variable values
     current_step_index: int | None = None  # Update current step
     completed: bool | None = None  # Mark workflow as completed
+    completed_at: datetime | None = None  # When the workflow was completed
 
 
 class RunRead(TimestampedModel):
@@ -39,6 +40,7 @@ class RunRead(TimestampedModel):
     variables: list[dict[str, Any]] | None = None
     current_step_index: int | None = 0
     completed: bool = False
+    completed_at: datetime | None = None
 
 
 class RunWithTemplate(RunRead):

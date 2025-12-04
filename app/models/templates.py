@@ -53,6 +53,9 @@ class Template(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     created_by: Mapped[int | None] = mapped_column(Integer)
     variables: Mapped[Any | None] = mapped_column(JSON)  # Template-level variables for UI integration
+    icon: Mapped[str | None] = mapped_column(Text)  # Emoji icon for the template
+    is_recurring: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # Whether this is a recurring process
+    recurrence_interval: Mapped[str | None] = mapped_column(Text)  # How often it should run (daily, weekly, etc.)
 
     steps: Mapped[list["TemplateStep"]] = relationship(
         back_populates="template", cascade="all, delete-orphan", order_by="TemplateStep.order_index"
@@ -92,6 +95,7 @@ class Run(Base, TimestampMixin):
     variables: Mapped[Any | None] = mapped_column(JSON)  # Live variable values for this workflow run
     current_step_index: Mapped[int | None] = mapped_column(Integer, default=0)  # Track current step for UI
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # Workflow completion status
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime)  # When the workflow was completed
 
     template: Mapped[Template] = relationship(back_populates="runs")
     steps: Mapped[list["RunStep"]] = relationship(
