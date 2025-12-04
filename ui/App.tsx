@@ -137,14 +137,10 @@ const App: React.FC = () => {
   const handleResumeWorkflow = async (workflow: Workflow) => {
     try {
       // Fetch fresh workflow data with step statuses
+      // Note: freshWorkflow already contains isRecurring and recurrenceInterval from the API
+      // (populated by workflowFromBackend via template data), so no need to overwrite
       const freshWorkflow = await apiService.getWorkflow(workflow.id);
-      // Preserve our UI-specific fields
-      const enrichedWorkflow: Workflow = {
-        ...freshWorkflow,
-        isRecurring: workflow.isRecurring,
-        recurrenceInterval: workflow.recurrenceInterval
-      };
-      setActiveWorkflows(prev => prev.map(w => w.id === workflow.id ? enrichedWorkflow : w));
+      setActiveWorkflows(prev => prev.map(w => w.id === workflow.id ? freshWorkflow : w));
       setCurrentWorkflowId(workflow.id);
       setView('RUNNER');
     } catch (error) {

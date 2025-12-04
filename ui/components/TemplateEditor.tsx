@@ -297,7 +297,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
             title: stripEmojis(forceString(s.title)),
             description: forceString(s.description),
             completed: Boolean(s.completed),
-            sectionId: s.sectionId
+            // Sanitize sectionId to ensure string comparison works for section filtering
+            sectionId: s.sectionId ? forceString(s.sectionId) : undefined
           }))
       : [];
 
