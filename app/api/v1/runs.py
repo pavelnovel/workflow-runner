@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
@@ -45,9 +45,9 @@ def _get_run_step_or_404(run_step_id: int, db: Session) -> RunStep:
 
 @router.get("", response_model=list[schema.RunWithTemplate])
 def list_runs(
-    template_id: int | None = None,
+    template_id: Optional[int] = None,
     status_filter: Annotated[
-        str | None, Query(alias="status", pattern=schema.STATUS_REGEX)
+        Optional[str], Query(alias="status", pattern=schema.STATUS_REGEX)
     ] = None,
     db: Session = Depends(db_session),
 ):

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import (
     Boolean,
@@ -50,17 +50,17 @@ class Template(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
-    created_by: Mapped[int | None] = mapped_column(Integer)
-    variables: Mapped[Any | None] = mapped_column(JSON)  # Template-level variables for UI integration
-    icon: Mapped[str | None] = mapped_column(Text)  # Emoji icon for the template
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    created_by: Mapped[Optional[int]] = mapped_column(Integer)
+    variables: Mapped[Optional[Any]] = mapped_column(JSON)  # Template-level variables for UI integration
+    icon: Mapped[Optional[str]] = mapped_column(Text)  # Emoji icon for the template
     is_recurring: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)  # Whether this is a recurring process
-    recurrence_interval: Mapped[str | None] = mapped_column(Text)  # How often it should run (daily, weekly, etc.)
+    recurrence_interval: Mapped[Optional[str]] = mapped_column(Text)  # How often it should run (daily, weekly, etc.)
 
     steps: Mapped[list["TemplateStep"]] = relationship(
         back_populates="template", cascade="all, delete-orphan", order_by="TemplateStep.order_index"
     )
-    runs: Mapped[list["Run"]] = relationship(back_populates="template")
+    runs: Mapped[list["Run"]] = relationship(back_populates="template", cascade="all, delete-orphan")
 
 
 class TemplateStep(Base, TimestampMixin):
@@ -74,7 +74,7 @@ class TemplateStep(Base, TimestampMixin):
     template_id: Mapped[int] = mapped_column(ForeignKey("templates.id", ondelete="CASCADE"), nullable=False)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
+    description: Mapped[Optional[str]] = mapped_column(Text)
     is_required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     template: Mapped[Template] = relationship(back_populates="steps")
@@ -88,14 +88,14 @@ class Run(Base, TimestampMixin):
     __tablename__ = "runs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    template_id: Mapped[int] = mapped_column(ForeignKey("templates.id"), nullable=False)
+    template_id: Mapped[int] = mapped_column(ForeignKey("templates.id", ondelete="CASCADE"), nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(template_status_enum, nullable=False, default="not_started")
-    created_by: Mapped[int | None] = mapped_column(Integer)
-    variables: Mapped[Any | None] = mapped_column(JSON)  # Live variable values for this workflow run
-    current_step_index: Mapped[int | None] = mapped_column(Integer, default=0)  # Track current step for UI
+    created_by: Mapped[Optional[int]] = mapped_column(Integer)
+    variables: Mapped[Optional[Any]] = mapped_column(JSON)  # Live variable values for this workflow run
+    current_step_index: Mapped[Optional[int]] = mapped_column(Integer, default=0)  # Track current step for UI
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # Workflow completion status
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime)  # When the workflow was completed
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)  # When the workflow was completed
 
     template: Mapped[Template] = relationship(back_populates="runs")
     steps: Mapped[list["RunStep"]] = relationship(
@@ -115,8 +115,8 @@ class RunStep(Base, TimestampMixin):
     template_step_id: Mapped[int] = mapped_column(ForeignKey("template_steps.id"), nullable=False)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(run_step_status_enum, nullable=False, default="not_started")
-    notes: Mapped[str | None] = mapped_column(Text)
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime)
+    notes: Mapped[Optional[str]] = mapped_column(Text)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
     run: Mapped[Run] = relationship(back_populates="steps")
     template_step: Mapped[TemplateStep] = relationship(back_populates="run_steps")
@@ -139,7 +139,7 @@ class StepFieldDef(Base, TimestampMixin):
     label: Mapped[str] = mapped_column(Text, nullable=False)
     type: Mapped[str] = mapped_column(Text, nullable=False)
     required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    options_json: Mapped[Any | None] = mapped_column(JSON)
+    options_json: Mapped[Optional[Any]] = mapped_column(JSON)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     template_step: Mapped[TemplateStep] = relationship(back_populates="field_defs")
@@ -159,7 +159,7 @@ class StepFieldValue(Base, TimestampMixin):
     field_def_id: Mapped[int] = mapped_column(
         ForeignKey("step_field_defs.id", ondelete="CASCADE"), nullable=False
     )
-    value: Mapped[Any | None] = mapped_column(JSON)
+    value: Mapped[Optional[Any]] = mapped_column(JSON)
 
     run_step: Mapped[RunStep] = relationship(back_populates="field_values")
     field_def: Mapped[StepFieldDef] = relationship(back_populates="values")
