@@ -152,7 +152,7 @@ export const ActiveProcesses: React.FC<ActiveProcessesProps> = ({
               {/* Info */}
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">
-                  {safeStr(workflow.templateName) || 'Untitled Process'}
+                  {safeStr(workflow.templateName) || 'Untitled Run'}
                 </h3>
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <StatusBadge status={status} />
@@ -197,12 +197,12 @@ export const ActiveProcesses: React.FC<ActiveProcessesProps> = ({
             <PlayCircle className="text-gray-400" size={28} />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {searchQuery ? 'No matching processes' : 'No active processes'}
+            {searchQuery ? 'No matching runs' : 'No active runs'}
           </h3>
           <p className="text-gray-500 text-sm max-w-md mx-auto">
             {searchQuery
-              ? `No processes match "${searchQuery}"`
-              : 'Start a new process from your templates to see activity here.'
+              ? `No runs match "${searchQuery}"`
+              : 'Start a new run from your workflows to see activity here.'
             }
           </p>
         </div>

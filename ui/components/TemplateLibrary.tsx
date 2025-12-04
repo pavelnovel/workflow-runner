@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Template, Variable } from '../types';
-import { Play, Plus, Sparkles, Trash2, Pencil, X, ArrowRight, Loader2, RefreshCw } from 'lucide-react';
+import { Play, Plus, Sparkles, Trash2, Pencil, X, ArrowRight, Loader2, RefreshCw, FileText } from 'lucide-react';
 import { generateTemplateWithAI } from '../services/geminiService';
 
 interface TemplateLibraryProps {
@@ -19,8 +19,17 @@ const safeStr = (val: any): string => {
   return String(val);
 };
 
-// Default icons for templates without custom icons
-const defaultIcons = ['📋', '📊', '🚀', '💼', '📝', '🎯', '🔧', '📦'];
+// Color palette for templates
+const templateColors = [
+  'bg-blue-100 text-blue-600',
+  'bg-green-100 text-green-600',
+  'bg-purple-100 text-purple-600',
+  'bg-orange-100 text-orange-600',
+  'bg-pink-100 text-pink-600',
+  'bg-cyan-100 text-cyan-600',
+  'bg-indigo-100 text-indigo-600',
+  'bg-amber-100 text-amber-600'
+];
 
 export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
   templates,
@@ -85,9 +94,9 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
     setStartVariables(newVars);
   };
 
-  // Get icon for template (use custom or assign default based on index)
-  const getTemplateIcon = (template: Template, index: number): string => {
-    return template.icon || defaultIcons[index % defaultIcons.length];
+  // Get color class for template based on index
+  const getTemplateColor = (index: number): string => {
+    return templateColors[index % templateColors.length];
   };
 
   return (
@@ -178,7 +187,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg disabled:opacity-50"
                 >
                   {isGenerating ? <Loader2 className="animate-spin" size={16} /> : null}
-                  {isGenerating ? "Generating..." : "Create Template"}
+                  {isGenerating ? "Generating..." : "Create Workflow"}
                 </button>
               </div>
             </div>
@@ -195,8 +204,10 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
           >
             {/* Template Label */}
             <div className="flex items-start justify-between mb-4">
-              <div className="text-3xl">{getTemplateIcon(template, index)}</div>
-              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Template</span>
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getTemplateColor(index)}`}>
+                <FileText size={20} />
+              </div>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Workflow</span>
             </div>
 
             {/* Edit/Delete buttons - show on hover */}
@@ -219,7 +230,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
 
             {/* Content */}
             <h3 className="font-bold text-lg text-gray-900 mb-2">
-              {safeStr(template.name) || 'Untitled Template'}
+              {safeStr(template.name) || 'Untitled Workflow'}
             </h3>
             <p className="text-sm text-gray-600 mb-6 line-clamp-2">
               {safeStr(template.description) || 'No description'}
@@ -244,7 +255,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
               className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               <Play size={16} fill="currentColor" />
-              Launch Process
+              Start Run
             </button>
           </div>
         ))}
@@ -257,15 +268,15 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <Plus size={28} />
           </div>
-          <span className="font-semibold text-lg">Create Template</span>
-          <span className="text-sm mt-1">Use AI to generate a workflow from scratch</span>
+          <span className="font-semibold text-lg">Create Workflow</span>
+          <span className="text-sm mt-1">Use AI to generate a new workflow from scratch</span>
         </div>
       </div>
 
       {/* Empty State */}
       {filteredTemplates.length === 0 && searchQuery && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No templates match "{searchQuery}"</p>
+          <p className="text-gray-500">No workflows match "{searchQuery}"</p>
         </div>
       )}
     </div>

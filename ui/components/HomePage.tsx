@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Template, Workflow, getIntervalDays } from '../types';
-import { AlertCircle, ArrowRight, PlayCircle, AlertTriangle, Layers } from 'lucide-react';
+import { AlertCircle, ArrowRight, PlayCircle, AlertTriangle, Layers, FileText } from 'lucide-react';
 
 interface HomePageProps {
   templates: Template[];
@@ -74,7 +74,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">Running Processes</p>
+              <p className="text-gray-500 text-sm font-medium">Active Runs</p>
               <p className="text-4xl font-bold text-gray-900 mt-2">{stats.runningProcesses}</p>
             </div>
             <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
@@ -102,7 +102,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium">Templates Available</p>
+              <p className="text-gray-500 text-sm font-medium">Workflows Available</p>
               <p className="text-4xl font-bold text-brand-600 mt-2">{stats.templatesAvailable}</p>
             </div>
             <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
@@ -132,7 +132,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   {/* Info */}
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {safeStr(workflow.templateName) || 'Untitled Process'}
+                      {safeStr(workflow.templateName) || 'Untitled Run'}
                     </h3>
                     <p className="text-sm text-gray-500">
                       Updated {formatTime(workflow.startedAt)} | Started {formatDate(workflow.startedAt)}
@@ -175,14 +175,14 @@ export const HomePage: React.FC<HomePageProps> = ({
               >
                 <div className="flex items-center gap-4">
                   {/* Icon */}
-                  <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center text-xl">
-                    {workflow.templateIcon || '📋'}
+                  <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center">
+                    <FileText size={18} className="text-brand-600" />
                   </div>
 
                   {/* Info */}
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {safeStr(workflow.templateName) || 'Untitled Process'}
+                      {safeStr(workflow.templateName) || 'Untitled Run'}
                     </h3>
                     <p className="text-sm text-gray-500">
                       Step {workflow.currentStepIndex + 1} of {workflow.steps.length} | Started {formatDate(workflow.startedAt)}
@@ -210,9 +210,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <PlayCircle className="text-gray-400" size={28} />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No active processes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No active runs</h3>
           <p className="text-gray-500 text-sm max-w-md mx-auto">
-            Start a new process from your templates to see activity here.
+            Start a new run from your workflows to see activity here.
           </p>
         </div>
       )}

@@ -5,6 +5,7 @@ import { TemplateLibrary } from './components/TemplateLibrary';
 import { ActiveProcesses } from './components/ActiveProcesses';
 import { WorkflowRun } from './components/WorkflowRun';
 import { TemplateEditor } from './components/TemplateEditor';
+import { Settings } from './components/Settings';
 import { Template, Workflow, ViewState, Variable } from './types';
 import { apiService } from './services/apiService';
 
@@ -14,7 +15,6 @@ const INITIAL_TEMPLATES: Template[] = [
     id: 't1',
     name: 'Launch New Live Webinar',
     description: 'Setup Zoom, HubSpot, WordPress landing page, and emails.',
-    icon: '🎥',
     defaultVariables: [
       { key: 'webinarTitle', label: 'Webinar Title', value: '', description: 'The public facing name' },
       { key: 'date', label: 'Date & Time', value: '', description: 'When is it happening?' },
@@ -34,7 +34,6 @@ const INITIAL_TEMPLATES: Template[] = [
     id: 't2',
     name: 'High Intent Page Checkup',
     description: 'Bi-weekly health check for pricing page workflow.',
-    icon: '🛡️',
     isRecurring: true,
     recurrenceInterval: 'biweekly',
     defaultVariables: [],
@@ -50,7 +49,6 @@ const INITIAL_TEMPLATES: Template[] = [
     id: 't3',
     name: 'Setup New Community Space',
     description: 'Launch a new Circle.so space and invite members.',
-    icon: '👥',
     defaultVariables: [
       { key: 'spaceName', label: 'Space Name', value: '', description: 'Name of the new community space' },
       { key: 'description', label: 'Description', value: '', description: 'What is this space for?' }
@@ -67,7 +65,6 @@ const INITIAL_TEMPLATES: Template[] = [
     id: 't4',
     name: 'Customer Onboarding Handover',
     description: 'Sales to CS handover process.',
-    icon: '🤝',
     defaultVariables: [
       { key: 'customerName', label: 'Customer Name', value: '', description: 'Name of the customer' },
       { key: 'dealValue', label: 'Deal Value', value: '', description: 'Contract value' }
@@ -125,7 +122,6 @@ const App: React.FC = () => {
       // Add template metadata to workflow for display
       const enrichedWorkflow: Workflow = {
         ...newWorkflow,
-        templateIcon: template.icon,
         isRecurring: template.isRecurring,
         recurrenceInterval: template.recurrenceInterval
       };
@@ -145,7 +141,6 @@ const App: React.FC = () => {
       // Preserve our UI-specific fields
       const enrichedWorkflow: Workflow = {
         ...freshWorkflow,
-        templateIcon: workflow.templateIcon,
         isRecurring: workflow.isRecurring,
         recurrenceInterval: workflow.recurrenceInterval
       };
@@ -187,10 +182,9 @@ const App: React.FC = () => {
       id: safeStr(template.id),
       name: safeStr(template.name),
       description: safeStr(template.description),
-      icon: safeStr(template.icon) || '📋',
       isRecurring,
       // Only set recurrenceInterval when isRecurring is true to maintain data consistency
-      recurrenceInterval: isRecurring ? (safeStr(template.recurrenceInterval) || 'biweekly') : undefined,
+      recurrenceInterval: isRecurring ? (template.recurrenceInterval || 'biweekly') : undefined,
       defaultVariables: (Array.isArray(template.defaultVariables) ? template.defaultVariables : [])
         .filter(v => v && typeof v === 'object' && !Array.isArray(v))
         .map(v => ({
@@ -259,9 +253,10 @@ const App: React.FC = () => {
   const getPageTitle = () => {
     switch (view) {
       case 'DASHBOARD': return 'Overview';
-      case 'ACTIVE_PROCESSES': return 'Active Processes';
-      case 'TEMPLATES': return 'Template Library';
-      default: return 'ProcessDoer';
+      case 'ACTIVE_PROCESSES': return 'Runs';
+      case 'TEMPLATES': return 'Workflows';
+      case 'SETTINGS': return 'Settings';
+      default: return 'Workflow Runner';
     }
   };
 
@@ -291,10 +286,9 @@ const App: React.FC = () => {
       currentView={view}
       onNavigate={handleNavigate}
       title={getPageTitle()}
-      userName="JD"
-      showSearch={view !== 'DASHBOARD'}
+      showSearch={view !== 'DASHBOARD' && view !== 'SETTINGS'}
       onSearch={setSearchQuery}
-      searchPlaceholder={view === 'TEMPLATES' ? 'Search templates...' : 'Search processes...'}
+      searchPlaceholder={view === 'TEMPLATES' ? 'Search workflows...' : 'Search runs...'}
     >
       {view === 'DASHBOARD' && (
         <HomePage
@@ -323,6 +317,10 @@ const App: React.FC = () => {
           onDeleteTemplate={handleDeleteTemplate}
           searchQuery={searchQuery}
         />
+      )}
+
+      {view === 'SETTINGS' && (
+        <Settings />
       )}
     </Layout>
   );
