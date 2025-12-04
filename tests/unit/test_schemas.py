@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from app.schemas.templates import (
     TemplateCreate,
     TemplateUpdate,
-    StepCreate,
+    TemplateStepCreate,
     StepFieldDefCreate,
 )
 from app.schemas.runs import RunCreate, RunStepUpdate
@@ -61,7 +61,7 @@ class TestStepSchemas:
 
     def test_step_create_valid(self):
         """Should accept valid step data."""
-        step = StepCreate(
+        step = TemplateStepCreate(
             title="Test Step",
             description="Do something important",
         )
@@ -70,7 +70,7 @@ class TestStepSchemas:
 
     def test_step_create_with_order(self):
         """Should accept order index."""
-        step = StepCreate(
+        step = TemplateStepCreate(
             title="Ordered Step",
             description="With order",
             order_index=5,
@@ -86,7 +86,7 @@ class TestFieldSchemas:
         field = StepFieldDefCreate(
             name="project_name",
             label="Project Name",
-            field_type="text",
+            type="text",
         )
         assert field.name == "project_name"
         assert field.label == "Project Name"
@@ -96,7 +96,7 @@ class TestFieldSchemas:
         field = StepFieldDefCreate(
             name="myField123",
             label="My Field",
-            field_type="text",
+            type="text",
         )
         assert field.name == "myField123"
 
@@ -105,7 +105,7 @@ class TestFieldSchemas:
         field = StepFieldDefCreate(
             name="my_field_name",
             label="My Field",
-            field_type="text",
+            type="text",
         )
         assert field.name == "my_field_name"
 
@@ -115,7 +115,7 @@ class TestFieldSchemas:
             StepFieldDefCreate(
                 name="my field",
                 label="My Field",
-                field_type="text",
+                type="text",
             )
 
     def test_field_name_validation_rejects_special_chars(self):
@@ -124,7 +124,7 @@ class TestFieldSchemas:
             StepFieldDefCreate(
                 name="my-field",
                 label="My Field",
-                field_type="text",
+                type="text",
             )
 
 
