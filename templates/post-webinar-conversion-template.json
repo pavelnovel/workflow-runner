@@ -1,0 +1,81 @@
+{
+  "name": "Post-Webinar: Convert Live to On-Demand",
+  "description": "Complete workflow for converting a live webinar recording into an on-demand asset with email automation",
+  "defaultVariables": [
+    {
+      "key": "webinar_title",
+      "label": "Webinar Title",
+      "value": "",
+      "description": "Full title of the webinar (e.g., NetBox Cloud - Now What?)"
+    },
+    {
+      "key": "webinar_date",
+      "label": "Webinar Date",
+      "value": "",
+      "description": "Date webinar was held (e.g., August 27, 2025)"
+    },
+    {
+      "key": "zoom_recording_url",
+      "label": "Zoom Recording URL",
+      "value": "",
+      "description": "Link to download the Zoom recording"
+    },
+    {
+      "key": "youtube_video_id",
+      "label": "YouTube Video ID",
+      "value": "",
+      "description": "Once uploaded, the YouTube video ID"
+    },
+    {
+      "key": "slides_url",
+      "label": "Slides Upload URL",
+      "value": "",
+      "description": "Final URL where slides are hosted"
+    },
+    {
+      "key": "hubspot_form_id",
+      "label": "HubSpot Form ID",
+      "value": "",
+      "description": "Form submission ID for tracking registrants"
+    }
+  ],
+  "steps": [
+    {
+      "title": "📥 Download Zoom Replay",
+      "description": "Get the webinar recording from Zoom cloud storage. Navigate to Zoom > Recordings and download both the video file and chat transcript (if available)."
+    },
+    {
+      "title": "✂️ Edit Video in Descript",
+      "description": "Clean up the recording:\n• Remove dead air at start/end\n• Cut out any technical issues\n• Add intro/outro if applicable\n• Alternatively: Use Preview app for basic trimming if no extensive editing needed\n• Export final video in MP4 format (1080p recommended)"
+    },
+    {
+      "title": "📺 Upload to YouTube",
+      "description": "Upload the edited video to YouTube:\n• Reference previous webinar videos for consistent formatting\n• Title format: {{webinar_title}} - [Date: {{webinar_date}}]\n• Add description with key takeaways\n• Add relevant tags and set visibility to Unlisted or Public\n• Save the YouTube URL/Video ID: {{youtube_video_id}}"
+    },
+    {
+      "title": "📊 Upload Presentation Slides",
+      "description": "Upload webinar slides to CMS:\n• Go to: https://netboxlabscms.kinsta.cloud/wp-admin/upload.php\n• Upload the slide deck (PDF format preferred)\n• Copy the final URL\n• Update variable: {{slides_url}}"
+    },
+    {
+      "title": "📧 Send Replay Email to Registrants",
+      "description": "Create and send immediate replay email:\n• Clone previous replay email template\n• Update webinar title: {{webinar_title}}\n• Insert YouTube link: {{youtube_video_id}}\n• Insert slides link: {{slides_url}}\n• Send to all registrants who attended + no-shows"
+    },
+    {
+      "title": "🤖 Set Up On-Demand Autoresponder",
+      "description": "Configure HubSpot workflow for future registrants:\n• Clone the autoresponder email template\n• Update subject line with webinar title: {{webinar_title}}\n• Update email body with video and slides links\n• Add the 'On-Demand' brand/tag to email"
+    },
+    {
+      "title": "🌳 Create HubSpot Workflow Branch",
+      "description": "Set up workflow logic in HubSpot:\n• Form trigger: 'Has filled out {{hubspot_form_id}}'\n• Branch 1: If webinar date is PAST → Send On-Demand email\n• Branch 2: If webinar date is FUTURE → Add to Zoom webinar\n• Add re-enrollment rules if needed"
+    },
+    {
+      "title": "✅ Test the On-Demand Flow",
+      "description": "Quality check the complete setup:\n• Submit a test registration using a test email\n• Verify on-demand email is received\n• Check all links work (YouTube, slides)\n• Confirm email formatting looks correct\n• Test on mobile and desktop views"
+    },
+    {
+      "title": "📈 Update Webinar Status & Archive",
+      "description": "Final housekeeping:\n• Mark webinar as 'Completed' in your tracking system\n• Document the YouTube URL in your content library\n• Archive the Zoom recording (optional)\n• Update your webinar calendar/schedule\n• Note: Last checked {{webinar_date}}"
+    }
+  ]
+}
+

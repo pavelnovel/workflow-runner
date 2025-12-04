@@ -14,7 +14,7 @@ The `ui/` folder contains a fully integrated React app that works with the backe
 - ✅ **Multi-user support** - Share templates and workflows with your team
 - ✅ **Modern UI** with variable interpolation (`{{variableName}}` syntax)
 
-**Quick Start:** See [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) for full setup instructions.
+**Quick Start:** See [GETTING_STARTED.md](GETTING_STARTED.md) for setup instructions.
 
 ## Quick start
 
@@ -69,14 +69,14 @@ The Vite dev server proxies `/api` requests to `VITE_API_BASE_URL`, so run the F
 - Execute the dockerized smoke test via `make smoke`, which builds the images, brings the compose stack up, executes `pytest` inside the API container, and then tears everything down.
 - GitHub Actions (`.github/workflows/ci.yml`) runs both the Python tests and the smoke script on every push and pull request.
 
-## Launch FlowState (Integrated UI + Backend)
+## Launch FlowState
 
-### Option 1: Docker Compose (Easiest)
+### Quick Start (Recommended)
 ```bash
-# Start backend + database
+# Terminal 1: Start backend + database
 docker compose up --build
 
-# In another terminal, start UI
+# Terminal 2: Start UI
 cd ui
 npm install
 npm run dev
@@ -84,24 +84,9 @@ npm run dev
 
 Access FlowState at **http://localhost:3003**
 
-### Option 2: Local Development
-```bash
-# Terminal 1: Start database
-docker compose up db -d
-
-# Terminal 2: Run migration and start backend
-alembic upgrade head
-uvicorn app.main:app --reload --port 8003
-
-# Terminal 3: Start UI
-cd ui
-npm run dev
-```
-
 ### Port Configuration
 - **Port 3003** - FlowState UI
 - **Port 8003** - FastAPI Backend
-- **Port 5173** - Web Frontend (optional)
 - **Port 5432** - PostgreSQL
 
-See [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) for detailed setup and troubleshooting.
+See [GETTING_STARTED.md](GETTING_STARTED.md) for detailed setup and [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) for technical details.

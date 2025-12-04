@@ -105,6 +105,14 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
     }
   };
 
+  const handleGoToStep = (stepIndex: number) => {
+    // Allow jumping to any step
+    onUpdate({
+      ...workflow,
+      currentStepIndex: stepIndex
+    });
+  };
+
   const progressPercent = useMemo(() => {
     const len = workflow.steps.length || 1;
     return ((workflow.currentStepIndex) / len) * 100;
@@ -220,11 +228,13 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
           <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 pl-2">Steps</h3>
           <div className="space-y-1">
             {workflow.steps.map((step, idx) => (
-              <div 
+              <button 
                 key={strictString(step.id) || idx}
+                onClick={() => handleGoToStep(idx)}
                 className={`
-                  px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-3 transition-colors
-                  ${idx === workflow.currentStepIndex ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'text-gray-600'}
+                  w-full px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-3 transition-all
+                  cursor-pointer hover:bg-brand-50 hover:border-brand-100
+                  ${idx === workflow.currentStepIndex ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'text-gray-600 border border-transparent'}
                   ${idx < workflow.currentStepIndex ? 'text-gray-400' : ''}
                 `}
               >
@@ -234,8 +244,8 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
                 `}>
                   {idx < workflow.currentStepIndex ? <CheckCircle size={12} /> : idx + 1}
                 </div>
-                <span className="truncate">{strictString(step.title)}</span>
-              </div>
+                <span className="truncate text-left">{strictString(step.title)}</span>
+              </button>
             ))}
           </div>
         </aside>
@@ -253,7 +263,15 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
                 </div>
               </div>
 
-              <div className="mt-auto pt-8 border-t border-gray-100 flex justify-end">
+              <div className="mt-auto pt-8 border-t border-gray-100 flex justify-between items-center">
+                <button
+                  onClick={() => handleGoToStep(workflow.currentStepIndex - 1)}
+                  disabled={workflow.currentStepIndex === 0}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                >
+                  <ArrowLeft size={20} />
+                  Previous
+                </button>
                 <button
                   onClick={handleNext}
                   className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-md hover:shadow-lg transform active:scale-95"
