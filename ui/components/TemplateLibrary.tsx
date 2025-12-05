@@ -64,7 +64,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
       onAddTemplate(newTemplate);
       setShowAiModal(false);
       setAiPrompt('');
-    } catch (e) {
+    } catch {
       alert("Failed to generate template. Ensure your API key is valid.");
     } finally {
       setIsGenerating(false);
