@@ -741,7 +741,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                   <div className="p-4 border-b border-gray-100">
                     <input
                       type="text"
-                      value={stripEmojis(forceString(currentStep.title))}
+                      value={forceString(currentStep.title)}
                       onChange={(e) => updateStep('title', e.target.value)}
                       onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                       className="w-full text-xl font-semibold text-gray-900 bg-transparent border-none outline-none placeholder-gray-400"
