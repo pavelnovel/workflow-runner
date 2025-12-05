@@ -33,7 +33,7 @@ const SortableStepItem: React.FC<{
   isSelected: boolean;
   onSelect: () => void;
   onDelete: () => void;
-}> = ({ step, index, globalIndex, isSelected, onSelect, onDelete }) => {
+}> = ({ step, _index, globalIndex, isSelected, onSelect, onDelete }) => {
   const {
     attributes,
     listeners,
@@ -218,7 +218,7 @@ const DraggableVariable: React.FC<{
   onUpdate: (field: keyof Variable, value: string) => void;
   onRemove: () => void;
   onInsert: () => void;
-}> = ({ variable, index, onUpdate, onRemove, onInsert }) => {
+}> = ({ variable, _index, onUpdate, onRemove, onInsert }) => {
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/variable-key', variable.key);
     e.dataTransfer.effectAllowed = 'copy';

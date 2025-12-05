@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Workflow, Variable, Step } from '../types';
-import { ArrowLeft, CheckCircle, ChevronRight, Save, Plus, X, SlidersHorizontal } from 'lucide-react';
+import { Workflow, Variable } from '../types';
+import { ArrowLeft, CheckCircle, ChevronRight, Plus, X, SlidersHorizontal } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { RichStepRenderer } from './RichStepRenderer';
 
@@ -35,7 +35,7 @@ export const WorkflowRun: React.FC<WorkflowRunProps> = ({ workflow, onUpdate, on
   };
 
   // Inject variables into text
-  const renderTextWithVariables = (text: string) => {
+  const _renderTextWithVariables = (text: string) => {
     const safeText = strictString(text);
     if (!safeText) return null;
     

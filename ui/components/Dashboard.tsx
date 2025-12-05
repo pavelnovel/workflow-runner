@@ -47,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       onAddTemplate(newTemplate);
       setShowAiModal(false);
       setAiPrompt('');
-    } catch (e) {
+    } catch {
       alert("Failed to generate template. Ensure your API key is valid.");
     } finally {
       setIsGenerating(false);

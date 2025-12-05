@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Variable } from '../types';
-import { X, ZoomIn } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface RichStepRendererProps {
   content: string;

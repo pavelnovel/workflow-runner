@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { Template, Variable, Step } from "../types";
+import { Template } from "../types";
 
 // Helper to create a safe ID
 const generateId = () => Math.random().toString(36).substr(2, 9);

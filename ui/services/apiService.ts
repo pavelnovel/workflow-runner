@@ -3,7 +3,7 @@ import { Template, Workflow, Variable } from '../types';
 const API_BASE_URL = 'http://localhost:8003/api/v1';
 
 // Helper to convert UI Template to Backend format
-const templateToBackend = (template: Template) => {
+const _templateToBackend = (template: Template) => {
   const isRecurring = template.isRecurring || false;
   return {
     name: template.name,
@@ -204,8 +204,8 @@ export const apiService = {
     const data = await response.json();
 
     // Step 2: Sync steps with backend
-    const existingStepIds = new Set(data.steps.map((s: any) => s.id.toString()));
-    const newStepIds = new Set(template.steps.filter(s => !s.id.startsWith('step_')).map(s => s.id));
+    const _existingStepIds = new Set(data.steps.map((s: any) => s.id.toString()));
+    const _newStepIds = new Set(template.steps.filter(s => !s.id.startsWith('step_')).map(s => s.id));
 
     // Delete removed steps
     for (const existingStep of data.steps) {
