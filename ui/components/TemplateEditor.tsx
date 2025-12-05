@@ -168,7 +168,7 @@ const SortableSection: React.FC<{
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
             onBlur={handleTitleSave}
-            onKeyDown={(e) => e.key === 'Enter' && handleTitleSave()}
+            onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); if (e.key === 'Enter') handleTitleSave(); }}
             className="flex-1 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded px-1 py-0.5 outline-none"
             autoFocus
           />
@@ -236,6 +236,7 @@ const DraggableVariable: React.FC<{
             type="text"
             value={variable.label || ''}
             onChange={(e) => onUpdate('label', e.target.value)}
+            onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
             className="w-full text-sm font-medium text-gray-900 bg-transparent border-none outline-none"
             placeholder="Label"
           />
@@ -243,6 +244,7 @@ const DraggableVariable: React.FC<{
             type="text"
             value={variable.key || ''}
             onChange={(e) => onUpdate('key', e.target.value)}
+            onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
             className="w-full text-xs font-mono text-gray-500 bg-transparent border-none outline-none mt-0.5"
             placeholder="variableKey"
           />
@@ -562,6 +564,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                 type="text"
                 value={forceString(template.name)}
                 onChange={(e) => setTemplate({ ...template, name: e.target.value })}
+                onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                 className="font-bold text-gray-900 text-lg bg-transparent border-none outline-none focus:ring-0 w-auto min-w-[200px]"
                 placeholder="Template Name"
               />
@@ -602,6 +605,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                   <textarea
                     value={forceString(template.description)}
                     onChange={(e) => setTemplate({ ...template, description: e.target.value })}
+                    onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                     rows={2}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none resize-none"
                     placeholder="Brief description of this template..."
@@ -739,6 +743,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({ initialTemplate,
                       type="text"
                       value={stripEmojis(forceString(currentStep.title))}
                       onChange={(e) => updateStep('title', e.target.value)}
+                      onKeyDown={(e) => { e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); }}
                       className="w-full text-xl font-semibold text-gray-900 bg-transparent border-none outline-none placeholder-gray-400"
                       placeholder="Step Title"
                     />

@@ -46,6 +46,9 @@ export const RichStepRenderer: React.FC<RichStepRendererProps> = ({ content, var
     // Then linkify any plain-text URLs (but not ones already in href attributes)
     processed = linkifyUrls(processed);
 
+    // Convert newlines to <br> tags to preserve line breaks
+    processed = processed.replace(/\n/g, '<br>');
+
     return processed;
   }, [content, variables]);
 

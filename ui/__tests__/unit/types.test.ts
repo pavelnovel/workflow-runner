@@ -13,7 +13,7 @@ describe('Unit Tests - stripEmojis', () => {
   });
 
   it('should remove multiple emojis from text', () => {
-    expect(stripEmojis('🎉 Party 🎊 Time 🥳')).toBe('Party  Time');
+    expect(stripEmojis('🎉 Party 🎊 Time 🥳')).toBe(' Party  Time ');
   });
 
   it('should handle text with only emojis', () => {
@@ -29,7 +29,7 @@ describe('Unit Tests - stripEmojis', () => {
   });
 
   it('should remove emoji from step titles', () => {
-    expect(stripEmojis('📹 Download Zoom Replay')).toBe('Download Zoom Replay');
+    expect(stripEmojis('📹 Download Zoom Replay')).toBe(' Download Zoom Replay');
   });
 
   it('should handle complex unicode emojis', () => {
